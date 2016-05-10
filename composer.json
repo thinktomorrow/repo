@@ -1,0 +1,46 @@
+{
+    "name": "thinktomorrow/repo",
+    "description": "A Laravel repository package for retrieving, filtering and sorting models",
+    "keywords": [
+        "thinktomorrow",
+        "repo"
+    ],
+    "homepage": "https://github.com/thinktomorrow/repo",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ben Cavens",
+            "email": "cavensben@gmail.com"
+        }
+    ],
+    "require": {
+        "php" : ">=5.5.9",
+        "laravel/framework": "~5.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "4.*",
+        "scrutinizer/ocular": "~1.1",
+        "mockery/mockery" : "~0.9",
+        "orchestra/testbench": "^3.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Thinktomorrow\\Repo\\": "src/Thinktomorrow/Repo"
+        },
+      "classmap":[]
+    },
+  "autoload-dev": {
+    "psr-4": {
+      "Thinktomorrow\\Repo\\Tests\\": "tests"
+    },
+    "classmap":[]
+  },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
