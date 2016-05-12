@@ -90,7 +90,7 @@ trait Sortable
      */
     protected function handleSortablePayload()
     {
-        if (empty($this->sortableWhitelist) or empty($this->sortablePayload)) {
+        if (empty($this->sortableWhitelist) || empty($this->sortablePayload)) {
             return;
         }
 
