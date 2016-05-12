@@ -9,6 +9,8 @@
 
 A Laravel repository package for retrieving, filtering and sorting models
 
+The repo class offers an opinionated way of querying your eloquent model.
+
 ## Install
 
 Via Composer
