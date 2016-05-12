@@ -17,14 +17,6 @@ class BaseRepositoryTest extends TestCase
         $this->assertTrue($abstract->isAbstract());
     }
 
-    /**
-     * @expectedException Exception
-     */
-    public function test_must_set_model_on_instance()
-    {
-        new RepoStub();
-    }
-
     public function test_can_call_getAll()
     {
         $m = Mockery::mock(ModelStub::class);
