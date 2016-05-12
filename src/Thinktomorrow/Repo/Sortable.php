@@ -1,6 +1,6 @@
 <?php
 
-namespace Thinktomorrow\Repo\Traits;
+namespace Thinktomorrow\Repo;
 
 use Illuminate\Support\Facades\Input;
 
@@ -20,35 +20,35 @@ trait Sortable
      *
      * @var string
      */
-    private $delimiter = '|';
+    private $sortDelimiter = '|';
 
     /**
      * Collection of allowed keys to sort on
      *
      * @var array
      */
-    private $sortables;
+    private $sortableWhitelist;
 
     /**
      * Key that should be used to sort the current Query
      *
      * @var array
      */
-    private $sorters;
+    private $sortablePayload;
 
     /**
      * Enable sort
      *
-     * @param array $sortables - set of allowed sortable parameters
-     * @param array $defaults  - default sorters - used when no sorters are in effect
-     * @param array $sorters   - forced sorters - used when the query payload is empty
+     * @param array $sortableWhitelist - whitelist of sortable parameters
+     * @param array $forcedPayload - enforce these sorters
+     * @param array $defaultPayload - default sorting if no sorting is passed
      * @return $this
      */
-    public function sort($sortables = null, $defaults = [], $sorters = [])
+    public function sort($sortableWhitelist = null, $forcedPayload = [], $defaultPayload = [])
     {
-        $this->sortables = $this->convertToCleanArray($sortables);
+        $this->sortableWhitelist = $this->convertToCleanArray($sortableWhitelist);
 
-        $this->sorters = $this->getSorters($defaults, $sorters);
+        $this->sortablePayload = $this->setSortablePayload($forcedPayload, $defaultPayload);
 
         $this->handleSortablePayload();
 
@@ -62,21 +62,21 @@ trait Sortable
      * uriSorters    By default the sorters provided via uri payload are used
      * defaults    if none are given, a default sorter can be activated
      *
-     * @param  array $defaults
-     * @param  array $sorters
+     * @param  array $forcedPayload
+     * @param array $defaultPayload
      * @return array
      */
-    protected function getSorters($defaults = [], $sorters = [])
+    protected function setSortablePayload($forcedPayload = [], $defaultPayload = [])
     {
-        if (count($sorters = $this->convertToCleanArray($sorters)) > 0) {
-            return $sorters;
+        if (count($forced = $this->convertToCleanArray($forcedPayload)) > 0) {
+            return $forced;
         }
 
         if (count($uri_sorters = $this->convertToCleanArray(Input::get($this->sortableKey))) > 0) {
             return $uri_sorters;
         }
 
-        return $this->convertToCleanArray($defaults);
+        return $this->convertToCleanArray($defaultPayload);
     }
 
     /**
@@ -90,14 +90,14 @@ trait Sortable
      */
     protected function handleSortablePayload()
     {
-        if (empty($this->sortables) or empty($this->sorters)) {
+        if (empty($this->sortableWhitelist) or empty($this->sortablePayload)) {
             return;
         }
 
-        foreach ($this->sorters as $sorter) {
-            list($order, $sorter) = $this->getSorterAndOrderFromQueryString($sorter);
+        foreach ($this->sortablePayload as $sorter) {
+            list($sorter, $order) = $this->getSorterAndOrderFromQueryString($sorter);
 
-            if (false !== ($key = array_search($sorter, $this->sortables))) {
+            if (false !== ($key = array_search($sorter, $this->sortableWhitelist))) {
                 $this->addSortQuery($key, $sorter, $order);
             }
         }
@@ -110,7 +110,7 @@ trait Sortable
      */
     protected function addSortQuery($key, $sorter, $order)
     {
-        $sortable = $this->sortables[$key];
+        $sortable = $this->sortableWhitelist[$key];
 
         if (method_exists($this, 'sortBy' . ucfirst($sortable))) {
             call_user_func_array(array($this, 'sortBy' . ucfirst($sortable)), array($sorter, $order));
@@ -126,10 +126,10 @@ trait Sortable
     protected function getSorterAndOrderFromQueryString($sorter)
     {
         if (0 === strpos($sorter, '-')) {
-            return array('DESC', substr($sorter, 1));
+            return array(substr($sorter, 1), 'DESC');
         }
 
-        return array('ASC', $sorter);
+        return array($sorter, 'ASC');
     }
 
     private function convertToCleanArray($values)
@@ -145,8 +145,8 @@ trait Sortable
         $values = array_values($values);
 
         foreach ($values as $k => $v) {
-            if (false !== strpos($v, $this->delimiter)) {
-                $split_values = explode($this->delimiter, $v);
+            if (false !== strpos($v, $this->sortDelimiter)) {
+                $split_values = explode($this->sortDelimiter, $v);
 
                 // Inject the delimited values into the main array
                 array_splice($values, $k, 1, $split_values);
