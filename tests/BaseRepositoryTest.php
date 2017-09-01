@@ -10,7 +10,7 @@ use Thinktomorrow\Repo\Tests\Stubs\RepoStub;
 class BaseRepositoryTest extends TestCase
 {
     /** @test */
-    function it_is_an_abstract_class()
+    public function it_is_an_abstract_class()
     {
         $abstract = new \ReflectionClass(BaseRepository::class);
 
